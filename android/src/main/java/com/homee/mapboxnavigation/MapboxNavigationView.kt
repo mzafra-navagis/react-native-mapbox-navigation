@@ -11,8 +11,14 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.homee.mapboxnavigation.databinding.NavigationViewBinding
+import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.DirectionsRoute
+import com.mapbox.api.directions.v5.models.LegStep
+import com.mapbox.api.directions.v5.models.RouteLeg
 import com.mapbox.api.directions.v5.models.RouteOptions
 import com.mapbox.bindgen.Expected
 import com.mapbox.geojson.Point
@@ -30,8 +36,11 @@ import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.base.route.RouterCallback
 import com.mapbox.navigation.base.route.RouterFailure
 import com.mapbox.navigation.base.route.RouterOrigin
+import com.mapbox.navigation.base.trip.model.RouteLegProgress
+import com.mapbox.navigation.base.trip.model.RouteProgress
 import com.mapbox.navigation.core.MapboxNavigation
 import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.replay.MapboxReplayer
@@ -42,11 +51,6 @@ import com.mapbox.navigation.core.trip.session.LocationMatcherResult
 import com.mapbox.navigation.core.trip.session.LocationObserver
 import com.mapbox.navigation.core.trip.session.RouteProgressObserver
 import com.mapbox.navigation.core.trip.session.VoiceInstructionsObserver
-import com.homee.mapboxnavigation.databinding.NavigationViewBinding
-import com.mapbox.api.directions.v5.DirectionsCriteria
-import com.mapbox.navigation.base.trip.model.RouteLegProgress
-import com.mapbox.navigation.base.trip.model.RouteProgress
-import com.mapbox.navigation.core.arrival.ArrivalObserver
 import com.mapbox.navigation.ui.base.util.MapboxNavigationConsumer
 import com.mapbox.navigation.ui.maneuver.api.MapboxManeuverApi
 import com.mapbox.navigation.ui.maneuver.view.MapboxManeuverView
@@ -77,7 +81,7 @@ import com.mapbox.navigation.ui.voice.model.SpeechError
 import com.mapbox.navigation.ui.voice.model.SpeechValue
 import com.mapbox.navigation.ui.voice.model.SpeechVolume
 import java.util.Locale
-import com.facebook.react.uimanager.events.RCTEventEmitter
+
 
 class MapboxNavigationView(private val context: ThemedReactContext, private val accessToken: String?) :
     FrameLayout(context.baseContext) {
@@ -302,6 +306,8 @@ class MapboxNavigationView(private val context: ThemedReactContext, private val 
             val event = Arguments.createMap()
             event.putDouble("longitude", enhancedLocation.longitude)
             event.putDouble("latitude", enhancedLocation.latitude)
+            event.putDouble("altitudeInMeters", enhancedLocation.altitude)
+            event.putDouble("speedInMps", enhancedLocation.speed.toDouble())
             context
                 .getJSModule(RCTEventEmitter::class.java)
                 .receiveEvent(id, "onLocationChange", event)
@@ -348,9 +354,22 @@ class MapboxNavigationView(private val context: ThemedReactContext, private val 
             tripProgressApi.getTripProgress(routeProgress)
         )
 
+
         val event = Arguments.createMap()
+        routeProgress.currentLegProgress?.let {
+
+            routeProgress.route.legs()?.let { routeLegs ->
+                val last: RouteLeg = routeLegs[(routeProgress.route.legs()?.size ?: 0) - 1]
+                val isFinalLeg: Boolean = it.equals(last)
+
+                event.putBoolean("isFinalLeg", isFinalLeg)
+            }
+
+            event.putInt("legIndex", it.legIndex)
+            event.putMap("currentLegProgress", getRouteLegProgress(it))
+        }
         event.putDouble("distanceTraveled", routeProgress.distanceTraveled.toDouble())
-        event.putDouble("durationRemaining", routeProgress.durationRemaining.toDouble())
+        event.putDouble("durationRemaining", routeProgress.durationRemaining)
         event.putDouble("fractionTraveled", routeProgress.fractionTraveled.toDouble())
         event.putDouble("distanceRemaining", routeProgress.distanceRemaining.toDouble())
         context
@@ -416,7 +435,7 @@ class MapboxNavigationView(private val context: ThemedReactContext, private val 
             event.putString("onArrive", "")
             context
                 .getJSModule(RCTEventEmitter::class.java)
-                .receiveEvent(id, "onRouteProgressChange", event)
+                .receiveEvent(id, "onArrive", event)
         }
     }
 
@@ -710,7 +729,7 @@ class MapboxNavigationView(private val context: ThemedReactContext, private val 
         // show UI elements
         binding.soundButton.visibility = View.VISIBLE
         binding.routeOverview.visibility = View.VISIBLE
-        binding.tripProgressCard.visibility = View.VISIBLE
+        binding.tripProgressCard.visibility = View.GONE //Hide to give way to custom display
 
         // move the camera to overview when new route is available
         navigationCamera.requestNavigationCameraToFollowing()
@@ -763,5 +782,26 @@ class MapboxNavigationView(private val context: ThemedReactContext, private val 
 
     fun setMute(mute: Boolean) {
         this.isVoiceInstructionsMuted = mute
+    }
+
+
+    fun getRouteLegProgress(leg: RouteLegProgress): WritableMap? {
+        val map = Arguments.createMap()
+        map.putDouble("distanceTraveled", leg.distanceTraveled.toDouble())
+        map.putDouble("durationRemaining", leg.durationRemaining)
+        map.putDouble("fractionTraveled", leg.fractionTraveled.toDouble())
+        map.putDouble("distanceRemaining", leg.distanceRemaining.toDouble())
+        map.putMap(
+            "currentStepProgress",
+            leg.currentStepProgress!!.step?.let { getRouteStepProgress(it) }
+        )
+        return map
+    }
+
+    fun getRouteStepProgress(step: LegStep): WritableMap? {
+        val map = Arguments.createMap()
+        map.putDouble("distanceRemaining", step.distance())
+        map.putDouble("durationRemaining", step.duration())
+        return map
     }
 }
