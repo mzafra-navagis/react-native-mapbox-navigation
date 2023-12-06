@@ -10,6 +10,8 @@
 		957B881A244753D70058C6C1 /* MapboxNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 957B8816244753D70058C6C1 /* MapboxNavigationView.swift */; };
 		957B881C244753D70058C6C1 /* MapboxNavigationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 957B8818244753D70058C6C1 /* MapboxNavigationManager.m */; };
 		957B881D244753D70058C6C1 /* MapboxNavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 957B8819244753D70058C6C1 /* MapboxNavigationManager.swift */; };
+		FF026DD02B2060A100C4495D /* CustomBottomBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF026DCF2B2060A100C4495D /* CustomBottomBannerView.swift */; };
+		FF026DD42B2078A400C4495D /* MapboxDataConverters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF026DD32B2078A400C4495D /* MapboxDataConverters.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +32,8 @@
 		957B8816244753D70058C6C1 /* MapboxNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapboxNavigationView.swift; sourceTree = "<group>"; };
 		957B8818244753D70058C6C1 /* MapboxNavigationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapboxNavigationManager.m; sourceTree = "<group>"; };
 		957B8819244753D70058C6C1 /* MapboxNavigationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapboxNavigationManager.swift; sourceTree = "<group>"; };
+		FF026DCF2B2060A100C4495D /* CustomBottomBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBottomBannerView.swift; sourceTree = "<group>"; };
+		FF026DD32B2078A400C4495D /* MapboxDataConverters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapboxDataConverters.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +58,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				FF026DD32B2078A400C4495D /* MapboxDataConverters.swift */,
+				FF026DCF2B2060A100C4495D /* CustomBottomBannerView.swift */,
 				957B8818244753D70058C6C1 /* MapboxNavigationManager.m */,
 				957B8819244753D70058C6C1 /* MapboxNavigationManager.swift */,
 				957B8816244753D70058C6C1 /* MapboxNavigationView.swift */,
@@ -120,6 +126,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF026DD02B2060A100C4495D /* CustomBottomBannerView.swift in Sources */,
+				FF026DD42B2078A400C4495D /* MapboxDataConverters.swift in Sources */,
 				957B881C244753D70058C6C1 /* MapboxNavigationManager.m in Sources */,
 				957B881D244753D70058C6C1 /* MapboxNavigationManager.swift in Sources */,
 				957B881A244753D70058C6C1 /* MapboxNavigationView.swift in Sources */,

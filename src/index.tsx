@@ -19,3 +19,14 @@ const styles = StyleSheet.create({
 });
 
 export default MapboxNavigation;
+
+const MapView = () => {
+  return <RCTMGLMapView style={styles.container} />;
+};
+
+const RCTMGLMapView = requireNativeComponent(
+  'RCTMGLMapView',
+  MapView
+);
+
+export const MapboxMapView = MapView;
